@@ -12,6 +12,7 @@ from flask import (
     redirect,
     url_for
 )
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from youtube_downloader import AEPYouTubeDownloader
@@ -48,6 +49,9 @@ app = Flask(
 )
 app.config['SECRET_KEY'] = AEP_SECRET_KEY
 app.config['DOWNLOAD_FOLDER'] = AEP_DOWNLOAD_FOLDER
+
+# Habilitar CORS para todas las rutas
+CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = AEP_MAX_CONTENT_LENGTH
 
 # Inicializar descargador
