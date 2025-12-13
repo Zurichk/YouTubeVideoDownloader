@@ -278,9 +278,6 @@ header h1 {
     transform: none;
     box-shadow: none;
 }
-    cursor: not-allowed;
-    transform: none;
-}
 
 /* Video Info */
 .video-info {
@@ -365,7 +362,6 @@ header h1 {
     font-weight: 600;
     font-size: 1.1rem;
 }
-}
 
 /* Result Area */
 .result-area {
@@ -407,7 +403,6 @@ header h1 {
 
 .message p:last-child {
     margin-bottom: 0;
-}
 }
 
 /* Utility Classes */

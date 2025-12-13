@@ -58,6 +58,7 @@ class AEPYouTubeDownloader:
             Diccionario con información del video o None si hay error.
         """
         try:
+            cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
@@ -70,6 +71,10 @@ class AEPYouTubeDownloader:
                 },
                 'nocheckcertificate': True,
                 'age_limit': None,
+                # Usar cookies si existen
+                'cookiefile': cookies_path if os.path.exists(cookies_path) else None,
+                # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
+                'impersonate': 'chrome',
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
                 'referer': 'https://www.youtube.com/',
                 # Configuración adicional para evitar bloqueos
@@ -120,6 +125,7 @@ class AEPYouTubeDownloader:
                 }
             
             # Configuración de yt-dlp
+            cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
             ydl_opts = {
                 'format': format_id,
                 'outtmpl': os.path.join(
@@ -139,6 +145,10 @@ class AEPYouTubeDownloader:
                 },
                 'nocheckcertificate': True,
                 'age_limit': None,
+                # Usar cookies si existen
+                'cookiefile': cookies_path if os.path.exists(cookies_path) else None,
+                # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
+                'impersonate': 'chrome',
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
                 'referer': 'https://www.youtube.com/',
                 # Configuración adicional para evitar bloqueos
