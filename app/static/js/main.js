@@ -14,6 +14,49 @@ const successMessage = document.getElementById('successMessage');
 const errorMessage = document.getElementById('errorMessage');
 
 /**
+ * Inicializa la aplicación
+ */
+function initializeApp() {
+    // Esperar a que el CSS se cargue completamente
+    setTimeout(() => {
+        // Asegurar que todas las áreas estén ocultas al cargar la página
+        hideAllAreas();
+        
+        // Limpiar el formulario
+        videoUrlInput.value = '';
+        videoUrlInput.style.borderColor = 'var(--border-color)';
+        
+        // Habilitar botones
+        setButtonsState(false);
+        
+        console.log('Aplicación inicializada correctamente');
+        
+        // Verificar que los elementos estén ocultos
+        verifyHiddenElements();
+    }, 100);
+}
+
+/**
+ * Verifica que todos los elementos ocultos estén correctamente ocultos
+ */
+function verifyHiddenElements() {
+    const elementsToCheck = [
+        { element: videoInfo, name: 'videoInfo' },
+        { element: progressArea, name: 'progressArea' },
+        { element: resultArea, name: 'resultArea' },
+        { element: successMessage, name: 'successMessage' },
+        { element: errorMessage, name: 'errorMessage' }
+    ];
+    
+    elementsToCheck.forEach(({ element, name }) => {
+        if (element && !element.classList.contains('hidden')) {
+            console.warn(`Elemento ${name} no está oculto inicialmente, ocultándolo...`);
+            element.classList.add('hidden');
+        }
+    });
+}
+
+/**
  * Formatea la duración en segundos a formato HH:MM:SS
  * 
  * @param {number} seconds - Duración en segundos
@@ -61,11 +104,20 @@ function showProgress(text = 'Procesando...') {
  * Oculta todas las áreas de resultado
  */
 function hideAllAreas() {
-    videoInfo.classList.add('hidden');
-    progressArea.classList.add('hidden');
-    resultArea.classList.add('hidden');
-    successMessage.classList.add('hidden');
-    errorMessage.classList.add('hidden');
+    // Lista de todos los elementos que deben estar ocultos
+    const elementsToHide = [
+        videoInfo,
+        progressArea,
+        resultArea,
+        successMessage,
+        errorMessage
+    ];
+    
+    elementsToHide.forEach(element => {
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
 }
 
 /**
@@ -235,3 +287,6 @@ videoUrlInput.addEventListener('input', handleUrlChange);
 videoUrlInput.addEventListener('focus', () => {
     hideAllAreas();
 });
+
+// Inicializar la aplicación cuando se carga la página
+document.addEventListener('DOMContentLoaded', initializeApp);
