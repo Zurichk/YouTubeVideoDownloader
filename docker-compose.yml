@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  youtube-downloader:
+    build: .
+    container_name: youtube-downloader
+    restart: unless-stopped
+    ports:
+      - "5038:5038"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
+      - FLASK_ENV=production
+      - FILE_MAX_AGE_HOURS=${FILE_MAX_AGE_HOURS:-1}
+      - CLEANUP_INTERVAL_MINUTES=${CLEANUP_INTERVAL_MINUTES:-5}
+    volumes:
+      # Volumen para persistir descargas temporalmente (opcional)
+      - downloads:/app/downloads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5038/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+volumes:
+  downloads:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

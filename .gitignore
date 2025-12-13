@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+Scripts/
+Lib/
+Include/
+share/
+pyvenv.cfg
+
+# Variables de entorno
+.env
+.env.local
+
+# Descargas
+app/src/downloads/
+*.mp4
+*.webm
+*.mkv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+
+python-instructions.md
+/app/docs/
+.env.example

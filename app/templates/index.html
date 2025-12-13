@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader - AEP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎥 YouTube Video Downloader</h1>
+            <p class="subtitle">Descarga tus videos favoritos de YouTube fácilmente</p>
+        </header>
+
+        <!-- Descargo de Responsabilidad -->
+        <div class="disclaimer">
+            <div class="disclaimer-icon">⚠️</div>
+            <div class="disclaimer-content">
+                <h3>Descargo de Responsabilidad</h3>
+                <p>
+                    Esta herramienta está diseñada exclusivamente para descargar videos de los cuales 
+                    tienes los derechos de autor o permiso explícito del propietario. El uso de esta 
+                    aplicación para descargar contenido protegido por derechos de autor sin autorización 
+                    puede violar las leyes de propiedad intelectual y los términos de servicio de YouTube.
+                </p>
+                <p>
+                    <strong>Al usar esta aplicación, aceptas que:</strong>
+                </p>
+                <ul>
+                    <li>Solo descargarás contenido del cual tienes derechos o permiso explícito</li>
+                    <li>Respetarás los términos de servicio de YouTube</li>
+                    <li>No utilizarás el contenido descargado con fines comerciales sin autorización</li>
+                    <li>Eres el único responsable del uso que hagas del contenido descargado</li>
+                </ul>
+                <p class="disclaimer-warning">
+                    <strong>Nota:</strong> Los desarrolladores de esta aplicación no se hacen responsables 
+                    del uso indebido o ilegal de la misma.
+                </p>
+            </div>
+        </div>
+
+        <main>
+            <div class="card">
+                <form id="videoForm">
+                    <div class="form-group">
+                        <label for="videoUrl">URL del Video de YouTube</label>
+                        <input 
+                            type="text" 
+                            id="videoUrl" 
+                            name="url" 
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            required
+                        >
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" id="infoBtn" class="btn btn-secondary">
+                            📋 Ver Información
+                        </button>
+                        <button type="submit" id="downloadBtn" class="btn btn-primary">
+                            ⬇️ Descargar Video
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Área de información del video -->
+                <div id="videoInfo" class="video-info hidden">
+                    <h3>Información del Video</h3>
+                    <div class="info-content">
+                        <img id="thumbnail" src="" alt="Miniatura del video">
+                        <div class="info-details">
+                            <p><strong>Título:</strong> <span id="title"></span></p>
+                            <p><strong>Canal:</strong> <span id="uploader"></span></p>
+                            <p><strong>Duración:</strong> <span id="duration"></span></p>
+                            <p><strong>Vistas:</strong> <span id="views"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de progreso -->
+                <div id="progressArea" class="progress-area hidden">
+                    <div class="spinner"></div>
+                    <p id="progressText">Procesando...</p>
+                </div>
+
+                <!-- Área de resultado -->
+                <div id="resultArea" class="result-area hidden">
+                    <div class="result-content">
+                        <div id="successMessage" class="message success hidden">
+                            <p>✅ <strong>¡Descarga completada!</strong></p>
+                            <p id="resultTitle"></p>
+                            <a id="downloadLink" href="#" class="btn btn-download">
+                                💾 Descargar Archivo
+                            </a>
+                        </div>
+                        <div id="errorMessage" class="message error hidden">
+                            <p>❌ <strong>Error:</strong></p>
+                            <p id="errorText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Desarrollado con Flask y yt-dlp | © 2025 AEP</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

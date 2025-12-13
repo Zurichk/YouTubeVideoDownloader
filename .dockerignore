@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+Scripts/
+Lib/
+Include/
+pyvenv.cfg
+
+# Flask
+instance/
+.webassets-cache
+
+# Variables de entorno
+.env
+.env.local
+
+# Descargas
+downloads/
+*.mp4
+*.webm
+*.mkv
+*.avi
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+.dockerignore
+
+# Git
+.git/
+.gitignore
