@@ -61,11 +61,15 @@ class AEPYouTubeDownloader:
                 'no_warnings': True,
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android', 'web'],
-                        'skip': ['hls', 'dash']
+                        'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
+                        'skip': ['hls', 'dash', 'translated_subs'],
+                        'player_skip': ['webpage', 'configs'],
                     }
                 },
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'nocheckcertificate': True,
+                'age_limit': None,
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+                'referer': 'https://www.youtube.com/',
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -116,14 +120,18 @@ class AEPYouTubeDownloader:
                 'quiet': False,
                 'no_warnings': False,
                 'progress_hooks': [self._progress_hook],
-                # Evitar detección de bot
+                # Evitar detección de bot con estrategia avanzada
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android', 'web'],
-                        'skip': ['hls', 'dash']
+                        'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
+                        'skip': ['hls', 'dash', 'translated_subs'],
+                        'player_skip': ['webpage', 'configs'],
                     }
                 },
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'nocheckcertificate': True,
+                'age_limit': None,
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+                'referer': 'https://www.youtube.com/',
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
