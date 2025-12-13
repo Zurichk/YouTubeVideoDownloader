@@ -72,11 +72,6 @@ class AEPYouTubeDownloader:
                 'referer': 'https://www.youtube.com/',
             }
             
-            # Agregar cookies si están disponibles
-            cookies_file = os.environ.get('YOUTUBE_COOKIES_FILE')
-            if cookies_file and os.path.exists(cookies_file):
-                ydl_opts['cookiefile'] = cookies_file
-            
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 
@@ -138,11 +133,6 @@ class AEPYouTubeDownloader:
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
                 'referer': 'https://www.youtube.com/',
             }
-            
-            # Agregar cookies si están disponibles
-            cookies_file = os.environ.get('YOUTUBE_COOKIES_FILE')
-            if cookies_file and os.path.exists(cookies_file):
-                ydl_opts['cookiefile'] = cookies_file
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
