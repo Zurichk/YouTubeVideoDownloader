@@ -41,8 +41,8 @@ class AEPYouTubeDownloader:
         """
         Asegura que el directorio de descargas exista.
         """
+        os.makedirs(self.download_path, exist_ok=True)
         if not os.path.exists(self.download_path):
-            os.makedirs(self.download_path)
             logger.info(f"Directorio de descargas creado: {self.download_path}")
     
     def get_video_info(self, url: str) -> Optional[Dict]:
