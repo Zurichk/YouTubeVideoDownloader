@@ -187,4 +187,4 @@ Para preguntas o soporte, por favor abre un issue en GitHub.
 
 ---
 
-**Desarrollado con ❤️ siguiendo estándares AEP**
+**Desarrollado siguiendo estándares AEP**

@@ -59,6 +59,13 @@ class AEPYouTubeDownloader:
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'web'],
+                        'skip': ['hls', 'dash']
+                    }
+                },
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -109,6 +116,14 @@ class AEPYouTubeDownloader:
                 'quiet': False,
                 'no_warnings': False,
                 'progress_hooks': [self._progress_hook],
+                # Evitar detección de bot
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'web'],
+                        'skip': ['hls', 'dash']
+                    }
+                },
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
