@@ -8,6 +8,7 @@ import time
 import traceback
 from typing import Dict, Optional
 import yt_dlp
+import shutil
 
 
 # Configuración de logging
@@ -138,10 +139,15 @@ class AEPYouTubeDownloader:
                     'error': 'URL inválida'
                 }
             
+            # Verificar si ffmpeg está instalado si se requiere fusión
+            if 'bestvideo' in format_id and not shutil.which('ffmpeg'):
+                logger.warning("ffmpeg no encontrado en el sistema. Cambiando formato a 'best' para evitar errores de fusión.")
+                format_id = 'best'
+            
             # Función interna para intentar descarga
-            def try_download():
+            def try_download(use_cookies=True):
                 # Intentar usar cookies si existen
-                opts = self._get_ydl_opts(use_cookies=True)
+                opts = self._get_ydl_opts(use_cookies=use_cookies)
                 opts.update({
                     'format': format_id,
                     'outtmpl': os.path.join(self.download_path, '%(title)s.%(ext)s'),
@@ -160,7 +166,11 @@ class AEPYouTubeDownloader:
                         'title': info.get('title', 'Sin título')
                     }
 
-            return try_download()
+            try:
+                return try_download(use_cookies=True)
+            except yt_dlp.utils.DownloadError as e:
+                logger.warning(f"Fallo descarga con cookies, intentando sin cookies: {str(e)}")
+                return try_download(use_cookies=False)
                 
         except yt_dlp.utils.DownloadError as e:
             logger.error(f"Error de descarga final: {str(e)}")
