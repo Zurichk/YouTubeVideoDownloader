@@ -85,7 +85,19 @@ def get_video_info():
         JSON con la información del video.
     """
     try:
-        data = request.get_json()
+        # Log para depuración
+        logger.info(f"Info Request Headers: {request.headers}")
+        logger.info(f"Info Request Body: {request.get_data(as_text=True)}")
+
+        data = request.get_json(force=True, silent=True)
+        
+        if not data:
+            logger.error("No se pudo parsear el JSON del body")
+            return jsonify({
+                'success': False,
+                'error': 'Datos inválidos o formato incorrecto'
+            }), 400
+
         url = data.get('url', '').strip()
         
         if not url:
@@ -124,7 +136,19 @@ def download_video():
         JSON con el resultado de la descarga.
     """
     try:
-        data = request.get_json()
+        # Log para depuración
+        logger.info(f"Download Request Headers: {request.headers}")
+        logger.info(f"Download Request Body: {request.get_data(as_text=True)}")
+
+        data = request.get_json(force=True, silent=True)
+        
+        if not data:
+            logger.error("No se pudo parsear el JSON del body")
+            return jsonify({
+                'success': False,
+                'error': 'Datos inválidos o formato incorrecto'
+            }), 400
+
         url = data.get('url', '').strip()
         format_id = data.get('format', 'best')
         
