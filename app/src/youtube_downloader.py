@@ -88,6 +88,9 @@ class AEPYouTubeDownloader:
         # Solo añadir cookies si se solicita y el archivo existe
         if use_cookies and os.path.exists(cookies_path):
             opts['cookiefile'] = cookies_path
+            logger.info(f"Usando cookies desde: {cookies_path}")
+        else:
+            logger.info("No se están usando cookies (archivo no encontrado o deshabilitado)")
             
         return opts
 

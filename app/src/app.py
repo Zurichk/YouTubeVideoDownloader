@@ -3,6 +3,7 @@ Aplicación Flask para descargar videos de YouTube.
 """
 import os
 import logging
+import subprocess
 from flask import (
     Flask, 
     render_template, 
@@ -28,6 +29,13 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Verificar versión de Node.js al inicio
+try:
+    node_version = subprocess.check_output(["node", "--version"]).decode("utf-8").strip()
+    logger.info(f"Node.js detectado: {node_version}")
+except Exception as e:
+    logger.warning(f"Node.js NO detectado: {e}. Es necesario para resolver desafíos de YouTube.")
 
 # Constantes de configuración
 AEP_SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
