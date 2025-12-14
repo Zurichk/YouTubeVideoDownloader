@@ -5,6 +5,7 @@ import os
 import logging
 import json
 import time
+import traceback
 from typing import Dict, Optional
 import yt_dlp
 
@@ -47,6 +48,46 @@ class AEPYouTubeDownloader:
         if not os.path.exists(self.download_path):
             logger.info(f"Directorio de descargas creado: {self.download_path}")
     
+    def _get_ydl_opts(self, use_cookies: bool = True) -> Dict:
+        """
+        Genera la configuración para yt-dlp.
+        
+        Args:
+            use_cookies: Si se deben usar cookies o no.
+            
+        Returns:
+            Diccionario con la configuración.
+        """
+        cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+        
+        opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'nocheckcertificate': True,
+            'age_limit': None,
+            # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
+            'impersonate': 'chrome',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
+                    'skip': ['hls', 'dash', 'translated_subs'],
+                    'player_skip': ['webpage', 'configs'],
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            },
+        }
+        
+        # Solo añadir cookies si se solicita y el archivo existe
+        if use_cookies and os.path.exists(cookies_path):
+            opts['cookiefile'] = cookies_path
+            
+        return opts
+
     def get_video_info(self, url: str) -> Optional[Dict]:
         """
         Obtiene información del video sin descargarlo.
@@ -57,49 +98,37 @@ class AEPYouTubeDownloader:
         Returns:
             Diccionario con información del video o None si hay error.
         """
+        # Intento 1: Configuración estándar (con cookies si existen)
         try:
-            cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
-            ydl_opts = {
-                'quiet': True,
-                'no_warnings': True,
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
-                        'skip': ['hls', 'dash', 'translated_subs'],
-                        'player_skip': ['webpage', 'configs'],
-                    }
-                },
-                'nocheckcertificate': True,
-                'age_limit': None,
-                # Usar cookies si existen
-                'cookiefile': cookies_path if os.path.exists(cookies_path) else None,
-                # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
-                'impersonate': 'chrome',
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-                'referer': 'https://www.youtube.com/',
-                # Configuración adicional para evitar bloqueos
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
-                    'Sec-Fetch-Mode': 'navigate',
-                },
-            }
-            
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            opts = self._get_ydl_opts(use_cookies=True)
+            with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-                
-                return {
-                    'title': info.get('title', 'Sin título'),
-                    'duration': info.get('duration', 0),
-                    'thumbnail': info.get('thumbnail', ''),
-                    'uploader': info.get('uploader', 'Desconocido'),
-                    'view_count': info.get('view_count', 0),
-                    'id': info.get('id', '')
-                }
+                return self._process_info(info)
         except Exception as e:
-            logger.error(f"Error al obtener información del video: {str(e)}")
-            return None
+            logger.warning(f"Intento 1 fallido (con cookies): {str(e)}")
+            
+            # Intento 2: Sin cookies (a veces las cookies del servidor están bloqueadas)
+            try:
+                logger.info("Reintentando sin cookies...")
+                opts = self._get_ydl_opts(use_cookies=False)
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    return self._process_info(info)
+            except Exception as e2:
+                logger.error(f"Error final al obtener información: {str(e2)}")
+                logger.error(traceback.format_exc())
+                return None
+
+    def _process_info(self, info: Dict) -> Dict:
+        """Procesa la información cruda de yt-dlp"""
+        return {
+            'title': info.get('title', 'Sin título'),
+            'duration': info.get('duration', 0),
+            'thumbnail': info.get('thumbnail', ''),
+            'uploader': info.get('uploader', 'Desconocido'),
+            'view_count': info.get('view_count', 0),
+            'id': info.get('id', '')
+        }
     
     def download_video(
         self, 
@@ -124,61 +153,47 @@ class AEPYouTubeDownloader:
                     'error': 'URL inválida'
                 }
             
-            # Configuración de yt-dlp
-            cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
-            ydl_opts = {
-                'format': format_id,
-                'outtmpl': os.path.join(
-                    self.download_path, 
-                    '%(title)s.%(ext)s'
-                ),
-                'quiet': False,
-                'no_warnings': False,
-                'progress_hooks': [self._progress_hook],
-                # Evitar detección de bot con estrategia avanzada
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
-                        'skip': ['hls', 'dash', 'translated_subs'],
-                        'player_skip': ['webpage', 'configs'],
-                    }
-                },
-                'nocheckcertificate': True,
-                'age_limit': None,
-                # Usar cookies si existen
-                'cookiefile': cookies_path if os.path.exists(cookies_path) else None,
-                # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
-                'impersonate': 'chrome',
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-                'referer': 'https://www.youtube.com/',
-                # Configuración adicional para evitar bloqueos
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
-                    'Sec-Fetch-Mode': 'navigate',
-                },
-            }
-            
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                filename = ydl.prepare_filename(info)
+            # Función interna para intentar descarga
+            def try_download(use_cookies: bool):
+                opts = self._get_ydl_opts(use_cookies=use_cookies)
+                opts.update({
+                    'format': format_id,
+                    'outtmpl': os.path.join(self.download_path, '%(title)s.%(ext)s'),
+                    'quiet': False,
+                    'no_warnings': False,
+                    'progress_hooks': [self._progress_hook],
+                })
                 
-                return {
-                    'success': True,
-                    'filename': os.path.basename(filename),
-                    'filepath': filename,
-                    'title': info.get('title', 'Sin título')
-                }
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+                    return {
+                        'success': True,
+                        'filename': os.path.basename(filename),
+                        'filepath': filename,
+                        'title': info.get('title', 'Sin título')
+                    }
+
+            # Intento 1: Con cookies
+            try:
+                return try_download(use_cookies=True)
+            except Exception as e:
+                logger.warning(f"Intento de descarga 1 fallido: {str(e)}")
+                
+                # Intento 2: Sin cookies
+                logger.info("Reintentando descarga sin cookies...")
+                return try_download(use_cookies=False)
                 
         except yt_dlp.utils.DownloadError as e:
-            logger.error(f"Error de descarga: {str(e)}")
+            logger.error(f"Error de descarga final: {str(e)}")
+            logger.error(traceback.format_exc())
             return {
                 'success': False,
                 'error': f'Error al descargar el video: {str(e)}'
             }
         except Exception as e:
-            logger.error(f"Error inesperado: {str(e)}")
+            logger.error(f"Error inesperado final: {str(e)}")
+            logger.error(traceback.format_exc())
             return {
                 'success': False,
                 'error': f'Error inesperado: {str(e)}'
