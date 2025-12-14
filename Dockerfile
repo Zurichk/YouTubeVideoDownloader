@@ -15,9 +15,9 @@ RUN useradd -m -u 1000 appuser && \
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar ffmpeg y git (necesario para instalar yt-dlp desde source)
+# Instalar ffmpeg, git y nodejs (necesario para yt-dlp)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg git && \
+    apt-get install -y --no-install-recommends ffmpeg git nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
