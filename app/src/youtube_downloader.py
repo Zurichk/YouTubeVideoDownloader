@@ -68,7 +68,7 @@ class AEPYouTubeDownloader:
             # 'impersonate': 'chrome', # Deshabilitado temporalmente por error de aserción en servidor
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
+                    'player_client': ['android', 'ios'],
                     'skip': ['hls', 'dash', 'translated_subs'],
                     'player_skip': ['webpage', 'configs'],
                 }
