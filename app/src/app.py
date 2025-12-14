@@ -150,7 +150,7 @@ def download_video():
             }), 400
 
         url = data.get('url', '').strip()
-        format_id = data.get('format', 'best')
+        format_id = data.get('format', 'bestvideo+bestaudio/best')
         
         if not url:
             return jsonify({

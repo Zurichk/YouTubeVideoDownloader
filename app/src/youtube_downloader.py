@@ -65,8 +65,7 @@ class AEPYouTubeDownloader:
             'no_warnings': True,
             'nocheckcertificate': True,
             'age_limit': None,
-            # Impersonar navegador para evitar detección de bots (requiere curl_cffi)
-            'impersonate': 'chrome',
+            # 'impersonate': 'chrome', # Deshabilitado temporalmente por error de aserción en servidor
             'extractor_args': {
                 'youtube': {
                     'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
@@ -75,10 +74,14 @@ class AEPYouTubeDownloader:
                 }
             },
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-us,en;q=0.5',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'en-US,en;q=0.9',
                 'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Sec-Fetch-Dest': 'document',
+                'Upgrade-Insecure-Requests': '1',
             },
         }
         
@@ -98,26 +101,16 @@ class AEPYouTubeDownloader:
         Returns:
             Diccionario con información del video o None si hay error.
         """
-        # Intento 1: Configuración estándar (con cookies si existen)
         try:
-            opts = self._get_ydl_opts(use_cookies=True)
+            # Usar configuración sin cookies ya que el archivo fue eliminado
+            opts = self._get_ydl_opts(use_cookies=False)
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 return self._process_info(info)
         except Exception as e:
-            logger.warning(f"Intento 1 fallido (con cookies): {str(e)}")
-            
-            # Intento 2: Sin cookies (a veces las cookies del servidor están bloqueadas)
-            try:
-                logger.info("Reintentando sin cookies...")
-                opts = self._get_ydl_opts(use_cookies=False)
-                with yt_dlp.YoutubeDL(opts) as ydl:
-                    info = ydl.extract_info(url, download=False)
-                    return self._process_info(info)
-            except Exception as e2:
-                logger.error(f"Error final al obtener información: {str(e2)}")
-                logger.error(traceback.format_exc())
-                return None
+            logger.error(f"Error al obtener información: {str(e)}")
+            logger.error(traceback.format_exc())
+            return None
 
     def _process_info(self, info: Dict) -> Dict:
         """Procesa la información cruda de yt-dlp"""
@@ -133,7 +126,7 @@ class AEPYouTubeDownloader:
     def download_video(
         self, 
         url: str, 
-        format_id: str = 'best'
+        format_id: str = 'bestvideo+bestaudio/best'
     ) -> Dict[str, any]:
         """
         Descarga un video de YouTube.
@@ -154,8 +147,8 @@ class AEPYouTubeDownloader:
                 }
             
             # Función interna para intentar descarga
-            def try_download(use_cookies: bool):
-                opts = self._get_ydl_opts(use_cookies=use_cookies)
+            def try_download():
+                opts = self._get_ydl_opts(use_cookies=False)
                 opts.update({
                     'format': format_id,
                     'outtmpl': os.path.join(self.download_path, '%(title)s.%(ext)s'),
@@ -174,15 +167,7 @@ class AEPYouTubeDownloader:
                         'title': info.get('title', 'Sin título')
                     }
 
-            # Intento 1: Con cookies
-            try:
-                return try_download(use_cookies=True)
-            except Exception as e:
-                logger.warning(f"Intento de descarga 1 fallido: {str(e)}")
-                
-                # Intento 2: Sin cookies
-                logger.info("Reintentando descarga sin cookies...")
-                return try_download(use_cookies=False)
+            return try_download()
                 
         except yt_dlp.utils.DownloadError as e:
             logger.error(f"Error de descarga final: {str(e)}")

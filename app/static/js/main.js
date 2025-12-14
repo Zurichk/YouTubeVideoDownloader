@@ -238,7 +238,7 @@ async function downloadVideo(event) {
             },
             body: JSON.stringify({ 
                 url,
-                format: 'best'
+                format: 'bestvideo+bestaudio/best'
             })
         });
         
