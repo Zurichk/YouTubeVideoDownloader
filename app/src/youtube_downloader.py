@@ -68,7 +68,7 @@ class AEPYouTubeDownloader:
             # 'impersonate': 'chrome', # Deshabilitado temporalmente por error de aserción en servidor
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'ios'],
+                    'player_client': ['web_creator', 'mediaconnect', 'android', 'ios'],
                     'skip': ['hls', 'dash', 'translated_subs'],
                     'player_skip': ['webpage', 'configs'],
                 }
@@ -102,8 +102,8 @@ class AEPYouTubeDownloader:
             Diccionario con información del video o None si hay error.
         """
         try:
-            # Usar configuración sin cookies ya que el archivo fue eliminado
-            opts = self._get_ydl_opts(use_cookies=False)
+            # Intentar usar cookies si existen (True), si no existen el método _get_ydl_opts lo maneja
+            opts = self._get_ydl_opts(use_cookies=True)
             with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 return self._process_info(info)
@@ -148,7 +148,8 @@ class AEPYouTubeDownloader:
             
             # Función interna para intentar descarga
             def try_download():
-                opts = self._get_ydl_opts(use_cookies=False)
+                # Intentar usar cookies si existen
+                opts = self._get_ydl_opts(use_cookies=True)
                 opts.update({
                     'format': format_id,
                     'outtmpl': os.path.join(self.download_path, '%(title)s.%(ext)s'),
