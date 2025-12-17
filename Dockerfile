@@ -40,7 +40,10 @@ EXPOSE 5038
 ENV FLASK_APP=src/app.py \
     FLASK_ENV=production \
     FILE_MAX_AGE_HOURS=1 \
-    CLEANUP_INTERVAL_MINUTES=5
+    CLEANUP_INTERVAL_MINUTES=5 \
+    # Variables opcionales para autenticación de YouTube (configurar en Coolify si es necesario)
+    YT_PO_TOKEN="" \
+    YT_VISITOR_DATA=""
 
 # Comando de inicio con gunicorn para producción
 CMD ["gunicorn", "--bind", "0.0.0.0:5038", "--workers", "2", "--threads", "4", "--timeout", "300", "--chdir", "src", "app:app"]

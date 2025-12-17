@@ -61,24 +61,59 @@ class AEPYouTubeDownloader:
         """
         cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         
+        # Configuración de extractor_args para YouTube
+        youtube_extractor_args = {
+            'skip': ['hls', 'dash', 'translated_subs'],
+            'player_skip': ['webpage', 'configs'],
+        }
+        
+        # Soporte para PO_TOKEN (Proof of Origin) - solución robusta para servidores
+        # Se puede configurar vía variable de entorno: YT_PO_TOKEN
+        po_token = os.environ.get('YT_PO_TOKEN', '')
+        visitor_data = os.environ.get('YT_VISITOR_DATA', '')
+        
+        if po_token and visitor_data:
+            youtube_extractor_args['po_token'] = [f'web+{po_token}']
+            logger.info("Usando PO_TOKEN para autenticación")
+        
         opts = {
             'quiet': True,
             'no_warnings': True,
             'nocheckcertificate': True,
             'age_limit': None,
-            # 'impersonate': 'chrome', # Deshabilitado temporalmente por error de aserción en servidor
+            'socket_timeout': 30,
+            'retries': 3,
+            'fragment_retries': 3,
+            # Headers para simular un navegador real
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+            },
             'extractor_args': {
-                'youtube': {
-                    'skip': ['hls', 'dash', 'translated_subs'],
-                    'player_skip': ['webpage', 'configs'],
-                }
+                'youtube': youtube_extractor_args
             },
         }
         
+        # Añadir visitor_data si está configurado
+        if visitor_data:
+            opts['extractor_args']['youtube']['visitor_data'] = [visitor_data]
+            logger.info("Usando VISITOR_DATA configurado")
+        
         # Solo añadir cookies si se solicita y el archivo existe
         if use_cookies and os.path.exists(cookies_path):
-            opts['cookiefile'] = cookies_path
-            logger.info(f"Usando cookies desde: {cookies_path}")
+            # Verificar que el archivo de cookies no esté vacío
+            if os.path.getsize(cookies_path) > 100:  # Archivo con contenido mínimo
+                opts['cookiefile'] = cookies_path
+                logger.info(f"Usando cookies desde: {cookies_path}")
+            else:
+                logger.warning("Archivo de cookies existe pero parece vacío o muy pequeño")
         else:
             logger.info("No se están usando cookies (archivo no encontrado o deshabilitado)")
             

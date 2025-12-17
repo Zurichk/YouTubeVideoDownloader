@@ -179,7 +179,8 @@ Esta herramienta se proporciona "tal cual" sin garantías de ningún tipo. El us
 
 - [Documentación de yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [Documentación de Flask](https://flask.palletsprojects.com/)
-- [Guía de Despliegue Completa](DEPLOYMENT.md)
+https://github.com/yt-dlp/yt-dlp/wiki/Extractors#po-token-guide
+https://github.com/yt-dlp/yt-dlp/wiki/PO-Token-Guide
 
 ## 📧 Contacto
 
