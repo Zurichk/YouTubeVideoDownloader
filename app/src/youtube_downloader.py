@@ -63,8 +63,9 @@ class AEPYouTubeDownloader:
         
         # Configuración de extractor_args para YouTube
         youtube_extractor_args = {
-            'skip': ['hls', 'dash', 'translated_subs'],
-            'player_skip': ['webpage', 'configs'],
+            # No saltar formatos - permitir todos para mejor compatibilidad
+            'skip': ['translated_subs'],
+            'player_skip': ['webpage'],
         }
         
         # Soporte para PO_TOKEN (Proof of Origin) - solución robusta para servidores
@@ -84,6 +85,9 @@ class AEPYouTubeDownloader:
             'socket_timeout': 30,
             'retries': 3,
             'fragment_retries': 3,
+            # Extraer solo el video, no toda la playlist
+            'noplaylist': True,
+            'extract_flat': False,
             # Headers para simular un navegador real
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
